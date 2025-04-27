@@ -9,3 +9,9 @@ modelos: donde se encontraran las clases
 servicios: donde manejaremos las clases
 
 ElementoAgricola sera nuestra clase abstracta que obligara a cultivos a definirse
+
+Para compilar el proyecto, utilizar:
+javac menu/*.java modelos/*.java servicios/*.java App2.java
+
+y para ejecutar, utilizar:
+java App2 cultivos.csv
