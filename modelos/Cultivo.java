@@ -61,6 +61,6 @@ public class Cultivo extends ElementoAgricola {
 
     @Override
     public String obtenerDescripcion() {
-        return "Cultivo de " + nombre + " (" + variedad + "), sembrado el " + fechaSiembra + ", en parcela " + parcela;
-    }
+        return "Cultivo de " + nombre + " (" + variedad + "), sembrado el " + fechaSiembra + ", en parcela " + (parcela != null ? parcela.getCodigo() : "Sin asignar");
+    }    
 }
