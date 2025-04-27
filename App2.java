@@ -70,18 +70,23 @@ public class App2 {
             switch (opcion) {
                 case 1:
                     System.out.println("Listar parcelas");
+                    // Aquí iría el llamado a la función real de listar parcelas
                     break;
                 case 2:
                     System.out.println("Crear parcela");
+                    // Función de crear parcela
                     break;
                 case 3:
                     System.out.println("Editar parcela");
+                    // Función de editar parcela
                     break;
                 case 4:
                     System.out.println("Eliminar parcela");
+                    // Función de eliminar parcela
                     break;
                 case 5:
                     System.out.println("Asignar cultivo a parcela");
+                    // Función de asignar cultivo a parcela
                     break;
                 case 6:
                     volver = true;
@@ -99,15 +104,19 @@ public class App2 {
             switch (opcion) {
                 case 1:
                     System.out.println("Registrar actividad");
+                    // Función de registrar actividad
                     break;
                 case 2:
                     System.out.println("Listar actividades de un cultivo");
+                    // Función de listar actividades de un cultivo
                     break;
                 case 3:
                     System.out.println("Eliminar actividad");
+                    // Función de eliminar actividad
                     break;
                 case 4:
                     System.out.println("Marcar actividad como completada");
+                    // Función de marcar actividad como completada
                     break;
                 case 5:
                     volver = true;
@@ -125,9 +134,11 @@ public class App2 {
             switch (opcion) {
                 case 1:
                     System.out.println("Buscar cultivos por nombre o variedad");
+                    // Función de buscar cultivos por nombre o variedad
                     break;
                 case 2:
                     System.out.println("Reporte de cultivos");
+                    // Función de reporte de cultivos
                     break;
                 case 3:
                     volver = true;
