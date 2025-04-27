@@ -1,9 +1,11 @@
 Explicacion Esqueleto de la App2:
 
+App2: el "cerebro" del programa
+
 menu: es donde se crearan las "interacciones por consola" de la App2
 
 modelos: donde se encontraran las clases
 
 servicios: donde manejaremos las clases
 
-ElementoAgricola sera nuestra clase abstracta que obligara a las clases a definirse
+ElementoAgricola sera nuestra clase abstracta que obligara a cultivos a definirse
