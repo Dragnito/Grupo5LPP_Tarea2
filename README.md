@@ -1,6 +1,6 @@
 Correos:
-pablofmorales@alumnos.uai.cl 
-
+Pablo Morales: pablofmorales@alumnos.uai.cl 
+Daniel Gormaz: 
 
 Explicacion Esqueleto de la App2:
 
