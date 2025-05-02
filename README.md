@@ -1,4 +1,5 @@
 Correos:
+pablofmorales@alumnos.uai.cl 
 
 
 Explicacion Esqueleto de la App2:
