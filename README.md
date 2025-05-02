@@ -1,7 +1,8 @@
 Correos:
 Pablo Morales: pablofmorales@alumnos.uai.cl 
-Daniel Gormaz: 
-
+Daniel Gormaz:  dagormaz@alumnos.uai.cl
+Valentin Malov: 
+Christian Loff:
 Explicacion Esqueleto de la App2:
 
 App2: el "cerebro" del programa
