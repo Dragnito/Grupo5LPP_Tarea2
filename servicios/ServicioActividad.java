@@ -2,7 +2,6 @@ package servicios;
 
 import modelos.Actividad;
 import modelos.Cultivo;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ServicioActividad {

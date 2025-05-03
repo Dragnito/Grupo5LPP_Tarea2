@@ -14,29 +14,38 @@ public class App2 {
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
-        // Crear el menú
+        // Inicializar los servicios principales
+        ServicioCSV servicioCSV = new ServicioCSV(servicioCultivo, servicioParcela, servicioActividad);
+
+        // Cargar datos desde el archivo CSV al inicio del programa
+        servicioCSV.leerArchivo("cultivos.csv");
+
+        // Crear el menú principal
         Menu menu = new Menu();
         boolean salir = false;
 
+        // Bucle principal del programa
         while (!salir) {
+            // Mostrar el menú principal y capturar la opción seleccionada
             int opcionPrincipal = menu.mostrarMenuPrincipal();
 
+            // Ejecutar la acción correspondiente según la opción seleccionada
             switch (opcionPrincipal) {
                 case 1:
-                    gestionarCultivos(menu);
+                    gestionarCultivos(menu); // Gestión de cultivos
                     break;
                 case 2:
-                    gestionarParcelas(menu);
+                    gestionarParcelas(menu); // Gestión de parcelas
                     break;
                 case 3:
-                    gestionarActividades(menu);
+                    gestionarActividades(menu); // Gestión de actividades
                     break;
                 case 4:
-                    gestionarBusquedaReporte(menu);
+                    gestionarBusquedaReporte(menu); // Búsqueda y reportes
                     break;
                 case 5:
                     System.out.println("¡Gracias por usar el sistema! ¡Adiós!");
-                    salir = true;
+                    salir = true; // Salir del programa
                     break;
                 default:
                     System.out.println("Opción inválida. Intenta nuevamente.");
@@ -46,10 +55,13 @@ public class App2 {
 
     private static void gestionarCultivos(Menu menu) {
         boolean volver = false;
+
+        // Bucle para gestionar las opciones relacionadas con cultivos
         while (!volver) {
-            int opcion = menu.mostrarMenuCultivos();
+            int opcion = menu.mostrarMenuCultivos(); // Mostrar menú de cultivos
             switch (opcion) {
                 case 1:
+                    // Listar todos los cultivos registrados
                     System.out.println("Listar cultivos:");
                     List<Cultivo> cultivos = servicioCultivo.listarCultivos();
                     for (Cultivo cultivo : cultivos) {
@@ -57,33 +69,92 @@ public class App2 {
                     }
                     break;
                 case 2:
+                    // Crear un nuevo cultivo
                     System.out.println("Crear cultivo:");
                     System.out.print("Nombre: ");
-                    String nombre = scanner.nextLine(); // Cambiado a nextLine()
+                    String nombre = scanner.nextLine();
                     System.out.print("Variedad: ");
-                    String variedad = scanner.nextLine(); // Cambiado a nextLine()
+                    String variedad = scanner.nextLine();
+
+                    // Validar la superficie del cultivo
                     System.out.print("Superficie: ");
-                    double superficie = Double.parseDouble(scanner.nextLine()); // nextLine() y conversión
+                    double superficie = -1;
+                    while (superficie <= 0) {
+                        try {
+                            superficie = Double.parseDouble(scanner.next());
+                            if (superficie <= 0) {
+                                System.out.println("La superficie debe ser un número positivo. Intenta nuevamente.");
+                            }
+                        } catch (NumberFormatException e) {
+                            System.out.println("Entrada inválida. Por favor, ingresa un número válido.");
+                        }
+                    }
+
+                    // Validar la parcela asociada
+                    System.out.print("Código de la parcela: ");
+                    String codigoParcela = scanner.next();
+                    Parcela parcelaAsignar = servicioParcela.listarParcelas().stream()
+                            .filter(p -> p.getCodigo().equals(codigoParcela))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (parcelaAsignar == null) {
+                        System.out.println("Error: La parcela no existe. Por favor, verifica el código ingresado.");
+                        break;
+                    }
+
+                    // Validar que la superficie del cultivo no exceda el tamaño de la parcela
+                    if (superficie > parcelaAsignar.getTamano()) {
+                        System.out.println("Error: La superficie del cultivo excede el tamaño de la parcela.");
+                        break;
+                    }
+
+                    // Validar la fecha de siembra
                     System.out.print("Fecha de siembra (YYYY-MM-DD): ");
-                    LocalDate fechaSiembra = LocalDate.parse(scanner.nextLine()); // Cambiado a nextLine()
+                    LocalDate fechaSiembra = null;
+                    while (fechaSiembra == null) {
+                        try {
+                            String fechaInput = scanner.next();
+                            fechaSiembra = LocalDate.parse(fechaInput);
+                        } catch (Exception e) {
+                            System.out.println("Fecha inválida. Por favor, ingresa una fecha válida en formato YYYY-MM-DD.");
+                        }
+                    }
+
+                    // Validar el estado del cultivo
                     System.out.print("Estado (ACTIVO, EN_RIESGO, COSECHADO): ");
-                    String estado = scanner.nextLine(); // Cambiado a nextLine()
-                    Cultivo nuevoCultivo = new Cultivo(nombre, variedad, superficie, null, fechaSiembra, estado, null);
+                    String estado = "";
+                    while (!estado.equalsIgnoreCase("ACTIVO") && !estado.equalsIgnoreCase("EN_RIESGO") && !estado.equalsIgnoreCase("COSECHADO")) {
+                        estado = scanner.next();
+                        if (!estado.equalsIgnoreCase("ACTIVO") && !estado.equalsIgnoreCase("EN_RIESGO") && !estado.equalsIgnoreCase("COSECHADO")) {
+                            System.out.println("Estado inválido. Por favor, ingresa ACTIVO, EN_RIESGO o COSECHADO.");
+                        }
+                    }
+
+                    // Crear y registrar el nuevo cultivo
+                    Cultivo nuevoCultivo = new Cultivo(nombre, variedad, superficie, parcelaAsignar, fechaSiembra, estado, null);
                     servicioCultivo.crearCultivo(nuevoCultivo);
-                    System.out.println("Cultivo creado con éxito.");
+
+                    // Asignar el cultivo a la parcela
+                    servicioParcela.asignarCultivoAParcela(parcelaAsignar, nuevoCultivo);
+                    System.out.println("Nuevo cultivo creado y asignado a la parcela con éxito.");
                     break;
                 case 3:
+                    // Editar un cultivo existente
                     System.out.println("Editar cultivo:");
                     System.out.print("Nombre del cultivo a editar: ");
-                    String nombreEditar = scanner.nextLine(); // Cambiado a nextLine()
+                    String nombreEditar = scanner.nextLine();
                     Cultivo cultivoEditar = servicioCultivo.buscarCultivos(nombreEditar).stream().findFirst().orElse(null);
+
                     if (cultivoEditar != null) {
                         System.out.print("Nuevo nombre: ");
-                        String nuevoNombre = scanner.nextLine(); // Cambiado a nextLine()
+                        String nuevoNombre = scanner.nextLine();
                         System.out.print("Nueva variedad: ");
-                        String nuevaVariedad = scanner.nextLine(); // Cambiado a nextLine()
+                        String nuevaVariedad = scanner.nextLine();
                         System.out.print("Nueva superficie: ");
-                        double nuevaSuperficie = Double.parseDouble(scanner.nextLine()); // nextLine() y conversión
+                        double nuevaSuperficie = Double.parseDouble(scanner.nextLine());
+
+                        // Actualizar los datos del cultivo
                         servicioCultivo.editarCultivo(cultivoEditar, nuevoNombre, nuevaVariedad, nuevaSuperficie, cultivoEditar.getParcela());
                         System.out.println("Cultivo editado con éxito.");
                     } else {
@@ -91,10 +162,12 @@ public class App2 {
                     }
                     break;
                 case 4:
+                    // Eliminar un cultivo
                     System.out.println("Eliminar cultivo:");
                     System.out.print("Nombre del cultivo a eliminar: ");
-                    String nombreEliminar = scanner.nextLine(); // Cambiado a nextLine()
+                    String nombreEliminar = scanner.nextLine();
                     Cultivo cultivoEliminar = servicioCultivo.buscarCultivos(nombreEliminar).stream().findFirst().orElse(null);
+
                     if (cultivoEliminar != null) {
                         boolean eliminado = servicioCultivo.eliminarCultivo(cultivoEliminar);
                         System.out.println(eliminado ? "Cultivo eliminado con éxito." : "No se puede eliminar el cultivo, tiene actividades pendientes.");
@@ -103,7 +176,7 @@ public class App2 {
                     }
                     break;
                 case 5:
-                    volver = true;
+                    volver = true; // Volver al menú principal
                     break;
                 default:
                     System.out.println("Opción inválida. Intenta nuevamente.");
@@ -113,10 +186,13 @@ public class App2 {
 
     private static void gestionarParcelas(Menu menu) {
         boolean volver = false;
+
+        // Bucle para gestionar las opciones relacionadas con parcelas
         while (!volver) {
-            int opcion = menu.mostrarMenuParcelas();
+            int opcion = menu.mostrarMenuParcelas(); // Mostrar menú de parcelas
             switch (opcion) {
                 case 1:
+                    // Listar todas las parcelas registradas
                     System.out.println("Listar parcelas:");
                     List<Parcela> parcelas = servicioParcela.listarParcelas();
                     for (Parcela parcela : parcelas) {
@@ -124,20 +200,28 @@ public class App2 {
                     }
                     break;
                 case 2:
+                    // Crear una nueva parcela
                     System.out.println("Crear parcela:");
                     System.out.print("Código: ");
                     String codigo = scanner.next();
                     System.out.print("Tamaño: ");
                     double tamano = scanner.nextDouble();
+
+                    // Crear y registrar la nueva parcela
                     Parcela nuevaParcela = new Parcela(codigo, tamano);
                     servicioParcela.agregarParcela(nuevaParcela);
                     System.out.println("Parcela creada con éxito.");
                     break;
                 case 3:
+                    // Editar una parcela existente
                     System.out.println("Editar parcela:");
                     System.out.print("Código de la parcela a editar: ");
                     String codigoEditar = scanner.next();
-                    Parcela parcelaEditar = servicioParcela.listarParcelas().stream().filter(p -> p.getCodigo().equals(codigoEditar)).findFirst().orElse(null);
+                    Parcela parcelaEditar = servicioParcela.listarParcelas().stream()
+                            .filter(p -> p.getCodigo().equals(codigoEditar))
+                            .findFirst()
+                            .orElse(null);
+
                     if (parcelaEditar != null) {
                         System.out.print("Nuevo tamaño: ");
                         double nuevoTamano = scanner.nextDouble();
@@ -148,10 +232,15 @@ public class App2 {
                     }
                     break;
                 case 4:
+                    // Eliminar una parcela
                     System.out.println("Eliminar parcela:");
                     System.out.print("Código de la parcela a eliminar: ");
                     String codigoEliminar = scanner.next();
-                    Parcela parcelaEliminar = servicioParcela.listarParcelas().stream().filter(p -> p.getCodigo().equals(codigoEliminar)).findFirst().orElse(null);
+                    Parcela parcelaEliminar = servicioParcela.listarParcelas().stream()
+                            .filter(p -> p.getCodigo().equals(codigoEliminar))
+                            .findFirst()
+                            .orElse(null);
+
                     if (parcelaEliminar != null) {
                         boolean eliminada = servicioParcela.eliminarParcela(parcelaEliminar);
                         System.out.println(eliminada ? "Parcela eliminada con éxito." : "No se puede eliminar la parcela, tiene cultivos activos.");
@@ -160,17 +249,33 @@ public class App2 {
                     }
                     break;
                 case 5:
+                    // Asignar un cultivo a una parcela
                     System.out.println("Asignar cultivo a parcela:");
                     System.out.print("Código de la parcela: ");
                     String codigoParcela = scanner.next();
-                    Parcela parcelaAsignar = servicioParcela.listarParcelas().stream().filter(p -> p.getCodigo().equals(codigoParcela)).findFirst().orElse(null);
+                    Parcela parcelaAsignar = servicioParcela.listarParcelas().stream()
+                            .filter(p -> p.getCodigo().equals(codigoParcela))
+                            .findFirst()
+                            .orElse(null);
+
                     if (parcelaAsignar != null) {
                         System.out.print("Nombre del cultivo: ");
                         String nombreCultivo = scanner.next();
-                        Cultivo cultivoAsignar = servicioCultivo.buscarCultivos(nombreCultivo).stream().findFirst().orElse(null);
+                        Cultivo cultivoAsignar = servicioCultivo.buscarCultivos(nombreCultivo).stream()
+                                .findFirst()
+                                .orElse(null);
+
                         if (cultivoAsignar != null) {
+                            // Validar que la superficie del cultivo no exceda el tamaño de la parcela
+                            if (cultivoAsignar.getSuperficie() > parcelaAsignar.getTamano()) {
+                                System.out.println("Error: La superficie del cultivo excede el tamaño de la parcela.");
+                                break;
+                            }
+
+                            // Asignar el cultivo existente a la parcela
+                            cultivoAsignar.setParcela(parcelaAsignar);
                             servicioParcela.asignarCultivoAParcela(parcelaAsignar, cultivoAsignar);
-                            System.out.println("Cultivo asignado a la parcela con éxito.");
+                            System.out.println("Cultivo existente asignado a la parcela con éxito.");
                         } else {
                             System.out.println("Cultivo no encontrado.");
                         }
@@ -179,7 +284,7 @@ public class App2 {
                     }
                     break;
                 case 6:
-                    volver = true;
+                    volver = true; // Volver al menú principal
                     break;
                 default:
                     System.out.println("Opción inválida. Intenta nuevamente.");
